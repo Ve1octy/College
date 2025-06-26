@@ -1,0 +1,379 @@
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
+import org.junit.Test;
+
+import components.naturalnumber.NaturalNumber;
+
+/**
+ * JUnit test fixture for {@code NaturalNumber}'s constructors and kernel
+ * methods.
+ *
+ * @author Aidan Sivak
+ *
+ */
+public abstract class NaturalNumberTest {
+
+    /**
+     * Invokes the appropriate {@code NaturalNumber} constructor for the
+     * implementation under test and returns the result.
+     *
+     * @return the new number
+     * @ensures constructorTest = 0
+     */
+    protected abstract NaturalNumber constructorTest();
+
+    /**
+     * Invokes the appropriate {@code NaturalNumber} constructor for the
+     * implementation under test and returns the result.
+     *
+     * @param i
+     *            {@code int} to initialize from
+     * @return the new number
+     * @requires i >= 0
+     * @ensures constructorTest = i
+     */
+    protected abstract NaturalNumber constructorTest(int i);
+
+    /**
+     * Invokes the appropriate {@code NaturalNumber} constructor for the
+     * implementation under test and returns the result.
+     *
+     * @param s
+     *            {@code String} to initialize from
+     * @return the new number
+     * @requires there exists n: NATURAL (s = TO_STRING(n))
+     * @ensures s = TO_STRING(constructorTest)
+     */
+    protected abstract NaturalNumber constructorTest(String s);
+
+    /**
+     * Invokes the appropriate {@code NaturalNumber} constructor for the
+     * implementation under test and returns the result.
+     *
+     * @param n
+     *            {@code NaturalNumber} to initialize from
+     * @return the new number
+     * @ensures constructorTest = n
+     */
+    protected abstract NaturalNumber constructorTest(NaturalNumber n);
+
+    /**
+     * Invokes the appropriate {@code NaturalNumber} constructor for the
+     * reference implementation and returns the result.
+     *
+     * @return the new number
+     * @ensures constructorRef = 0
+     */
+    protected abstract NaturalNumber constructorRef();
+
+    /**
+     * Invokes the appropriate {@code NaturalNumber} constructor for the
+     * reference implementation and returns the result.
+     *
+     * @param i
+     *            {@code int} to initialize from
+     * @return the new number
+     * @requires i >= 0
+     * @ensures constructorRef = i
+     */
+    protected abstract NaturalNumber constructorRef(int i);
+
+    /**
+     * Invokes the appropriate {@code NaturalNumber} constructor for the
+     * reference implementation and returns the result.
+     *
+     * @param s
+     *            {@code String} to initialize from
+     * @return the new number
+     * @requires there exists n: NATURAL (s = TO_STRING(n))
+     * @ensures s = TO_STRING(constructorRef)
+     */
+    protected abstract NaturalNumber constructorRef(String s);
+
+    /**
+     * Invokes the appropriate {@code NaturalNumber} constructor for the
+     * reference implementation and returns the result.
+     *
+     * @param n
+     *            {@code NaturalNumber} to initialize from
+     * @return the new number
+     * @ensures constructorRef = n
+     */
+    protected abstract NaturalNumber constructorRef(NaturalNumber n);
+
+    // TODO - add test cases for four constructors, multiplyBy10, divideBy10, isZero
+
+    /**
+     * Test Constructor.
+     */
+    @Test
+    public final void testConstuctor() {
+        NaturalNumber n = this.constructorTest();
+        NaturalNumber expected = this.constructorRef();
+
+        assertEquals(expected, n);
+    }
+
+    /**
+     * Test constructor with zero.
+     */
+    @Test
+    public final void testConstructorZero() {
+        final int i = 0;
+        NaturalNumber n = this.constructorTest(i);
+        NaturalNumber expected = this.constructorRef(i);
+        assertEquals(expected, n);
+    }
+
+    /**
+     * Test constructor with a positive integer.
+     */
+    @Test
+    public final void testConstructorPositive() {
+        final int i = 12;
+        NaturalNumber n = this.constructorTest(i);
+        NaturalNumber expected = this.constructorRef(i);
+        assertEquals(expected, n);
+    }
+
+    /**
+     * Test constructor with int max.
+     */
+    @Test
+    public final void testConstructorIntMax() {
+        final int i = Integer.MAX_VALUE;
+        NaturalNumber n = this.constructorTest(i);
+        NaturalNumber expected = this.constructorRef(i);
+        assertEquals(expected, n);
+    }
+
+    /**
+     * Test constructor as a string.
+     */
+    @Test
+    public final void testConstructorString() {
+
+        String s = "48";
+        NaturalNumber n = this.constructorTest(s);
+        NaturalNumber expected = this.constructorRef(s);
+        assertEquals(expected, n);
+    }
+
+    /**
+     * Test constructor as 0 string.
+     */
+    @Test
+    public final void testConstructorZeroString() {
+
+        String s = "0";
+        NaturalNumber n = this.constructorTest(s);
+        NaturalNumber expected = this.constructorRef(s);
+        assertEquals(expected, n);
+    }
+
+    /**
+     * Test constructor as naturalnumber.
+     */
+    @Test
+    public final void testConstructorNaturalNumber() {
+
+        String s = "50";
+        NaturalNumber n1 = this.constructorTest(s);
+        NaturalNumber n2 = this.constructorRef(s);
+
+        NaturalNumber n = this.constructorTest(n1);
+        NaturalNumber expected = this.constructorRef(n2);
+        assertEquals(expected, n);
+    }
+
+    /**
+     * Tests multiplyBy10 with empty rep and zero input.
+     */
+    @Test
+    public void testMultiplyBy10EmptyZero() {
+        // Create instances
+        NaturalNumber n = this.constructorTest();
+        final int i = 0;
+        NaturalNumber nExpected = this.constructorRef(0);
+        // Call method
+        n.multiplyBy10(i);
+        // Assert equality
+        assertEquals(nExpected, n);
+    }
+
+    /**
+     * Tests multiplyBy10 with empty rep.
+     */
+    @Test
+    public void testMultiplyBy10Empty() {
+        // Create instances
+        NaturalNumber n = this.constructorTest();
+        final int i = 5;
+        NaturalNumber nExpected = this.constructorRef(i);
+        // Call method
+        n.multiplyBy10(i);
+        // Assert equality
+        assertEquals(nExpected, n);
+    }
+
+    /**
+     * Tests multiplyBy10 with non-empty rep.
+     */
+    @Test
+    public void testMultiplyBy10NonEmpty() {
+        // Create instances
+        NaturalNumber n = new NaturalNumber3(123);
+        final int k = 4;
+        NaturalNumber nExpected = this.constructorRef("1234");
+        // Call method
+        n.multiplyBy10(k);
+        // Assert equality
+        assertEquals(nExpected, n);
+    }
+
+    /**
+     * Tests multiplyBy10 with large number.
+     */
+    @Test
+    public void testMultiplyBy10LargeNumber() {
+        // Create instances
+        NaturalNumber n = new NaturalNumber3("999999999999999999");
+        final int k = 1;
+        NaturalNumber nExpected = this.constructorRef("9999999999999999991");
+        // Call method
+        n.multiplyBy10(k);
+        // Assert equality
+        assertEquals(nExpected, n);
+    }
+
+    /**
+     * Tests multiplyBy10 with large number and appending 9.
+     */
+    @Test
+    public void testMultiplyBy10LargeNumberAppendNine() {
+        // Create instances
+        NaturalNumber n = new NaturalNumber3("1000000000000000000");
+        final int k = 9;
+        NaturalNumber nExpected = this.constructorRef("10000000000000000009");
+        // Call method
+        n.multiplyBy10(k);
+        // Assert equality
+        assertEquals(nExpected, n);
+    }
+
+    /**
+     * Tests divideBy10 with single-digit rep.
+     */
+    @Test
+    public void testDivideBy10SingleDigit() {
+        // Create instances
+        NaturalNumber n = new NaturalNumber3(5);
+        final int expectedDigit = 5;
+        NaturalNumber nExpected = this.constructorTest();
+        // Call method
+        int lastDigit = n.divideBy10();
+        // Assert equality
+        assertEquals(expectedDigit, lastDigit);
+        assertEquals(nExpected, n);
+    }
+
+    /**
+     * Tests divideBy10 with multiple digits rep.
+     */
+    @Test
+    public void testDivideBy10MultipleDigits() {
+        // Create instances
+        NaturalNumber n = new NaturalNumber3(789);
+        final int expectedDigit = 9;
+        NaturalNumber nExpected = this.constructorRef(78);
+        // Call method
+        int lastDigit = n.divideBy10();
+        // Assert equality
+        assertEquals(expectedDigit, lastDigit);
+        assertEquals(nExpected, n);
+    }
+
+    /**
+     * Tests divideBy10 with large number.
+     */
+    @Test
+    public void testDivideBy10LargeNumber() {
+        // Create instances
+        NaturalNumber n = new NaturalNumber3("1000000000000000001");
+        final int expectedDigit = 1;
+        NaturalNumber nExpected = this.constructorRef("100000000000000000");
+        // Call method
+        int lastDigit = n.divideBy10();
+        // Assert equality
+        assertEquals(expectedDigit, lastDigit);
+        assertEquals(nExpected, n);
+    }
+
+    /**
+     * Tests divideBy10 resulting in zero.
+     */
+    @Test
+    public void testDivideBy10ResultingInZero() {
+        // Create instances
+        NaturalNumber n = new NaturalNumber3(1);
+        final int expectedDigit = 1;
+        NaturalNumber nExpected = this.constructorTest();
+        // Call method
+        int lastDigit = n.divideBy10();
+        // Assert equality
+        assertEquals(expectedDigit, lastDigit);
+        assertEquals(nExpected, n);
+    }
+
+    /**
+     * Tests divideBy10 with empty rep.
+     */
+    @Test
+    public void testDivideBy10Empty() {
+        // Create instances
+        NaturalNumber n = this.constructorTest();
+        final int expectedDigit = 0;
+        NaturalNumber nExpected = this.constructorTest();
+        // Call method
+        int lastDigit = n.divideBy10();
+        // Assert equality
+        assertEquals(expectedDigit, lastDigit);
+        assertEquals(nExpected, n);
+    }
+
+    /**
+     * Tests isZero with empty rep.
+     */
+    @Test
+    public void testIsZeroEmpty() {
+        // Create instance
+        NaturalNumber n = this.constructorTest();
+        // Call method and assert
+        assertTrue(n.isZero());
+    }
+
+    /**
+     * Tests isZero with zero value.
+     */
+    @Test
+    public void testIsZeroZeroValue() {
+        // Create instance
+        NaturalNumber n = new NaturalNumber3(0);
+        // Call method and assert
+        assertTrue(n.isZero());
+    }
+
+    /**
+     * Tests isZero with non-zero value.
+     */
+    @Test
+    public void testIsZeroNonZeroValue() {
+        // Create instance
+        NaturalNumber n = new NaturalNumber3(123);
+        // Call method and assert
+        assertFalse(n.isZero());
+    }
+
+}
