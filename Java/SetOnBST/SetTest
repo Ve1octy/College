@@ -1,0 +1,604 @@
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
+import org.junit.Test;
+
+import components.set.Set;
+
+/**
+ * JUnit test fixture for {@code Set<String>}'s constructor and kernel methods.
+ *
+ * @author Harshith Revuru & Aidan Sivak
+ *
+ */
+public abstract class SetTest {
+
+    /**
+     * Invokes the appropriate {@code Set} constructor for the implementation
+     * under test and returns the result.
+     *
+     * @return the new set
+     * @ensures constructorTest = {}
+     */
+    protected abstract Set<String> constructorTest();
+
+    /**
+     * Invokes the appropriate {@code Set} constructor for the reference
+     * implementation and returns the result.
+     *
+     * @return the new set
+     * @ensures constructorRef = {}
+     */
+    protected abstract Set<String> constructorRef();
+
+    /**
+     * Creates and returns a {@code Set<String>} of the implementation under
+     * test type with the given entries.
+     *
+     * @param args
+     *            the entries for the set
+     * @return the constructed set
+     * @requires [every entry in args is unique]
+     * @ensures createFromArgsTest = [entries in args]
+     */
+    private Set<String> createFromArgsTest(String... args) {
+        Set<String> set = this.constructorTest();
+        for (String s : args) {
+            assert !set.contains(s) : "Violation of: every entry in args is unique";
+            set.add(s);
+        }
+        return set;
+    }
+
+    /**
+     * Creates and returns a {@code Set<String>} of the reference implementation
+     * type with the given entries.
+     *
+     * @param args
+     *            the entries for the set
+     * @return the constructed set
+     * @requires [every entry in args is unique]
+     * @ensures createFromArgsRef = [entries in args]
+     */
+    private Set<String> createFromArgsRef(String... args) {
+        Set<String> set = this.constructorRef();
+        for (String s : args) {
+            assert !set.contains(s) : "Violation of: every entry in args is unique";
+            set.add(s);
+        }
+        return set;
+    }
+
+    // test cases for constructor, add, remove, removeAny, contains, and size
+
+    /**
+     * Test constructors.
+     */
+    @Test
+    public void testConstructor() {
+        /*
+         * Create instances.
+         */
+        Set<String> s = this.constructorTest();
+        Set<String> sExpected = this.constructorRef();
+        /*
+         * Assert equality.
+         */
+        assertEquals(sExpected, s);
+    }
+
+    /**
+     * Tests add when the initial set is empty.
+     */
+    @Test
+    public void testAddEmptySet() {
+        /*
+         * Create instances.
+         */
+        Set<String> n = this.createFromArgsTest();
+        Set<String> nExpected = this.createFromArgsRef("x");
+        /*
+         * Call method.
+         */
+        n.add("x");
+        /*
+         * Assert equality.
+         */
+        assertEquals(nExpected, n);
+    }
+
+    /**
+     * Tests add when the set already contains several elements.
+     */
+    @Test
+    public void testAddNonEmptySet() {
+        /*
+         * Create instances.
+         */
+        Set<String> n = this.createFromArgsTest("x", "y", "z");
+        Set<String> nExpected = this.createFromArgsRef("x", "y", "z", "a");
+        /*
+         * Call method.
+         */
+        n.add("a");
+        /*
+         * Assert equality.
+         */
+        assertEquals(nExpected, n);
+    }
+
+    /**
+     * Tests add when the element to add is lexicographically less than all
+     * existing elements.
+     */
+    @Test
+    public void testAddLessThanAll() {
+        /*
+         * Create instances.
+         */
+        Set<String> n = this.createFromArgsTest("b", "d", "f");
+        Set<String> nExpected = this.createFromArgsRef("a", "b", "d", "f");
+        /*
+         * Call method.
+         */
+        n.add("a");
+        /*
+         * Assert equality.
+         */
+        assertEquals(nExpected, n);
+    }
+
+    /**
+     * Tests add when the element to add is lexicographically greater than all
+     * existing elements.
+     */
+    @Test
+    public void testAddGreaterThanAll() {
+        /*
+         * Create instances.
+         */
+        Set<String> n = this.createFromArgsTest("b", "d", "f");
+        Set<String> nExpected = this.createFromArgsRef("b", "d", "f", "g");
+        /*
+         * Call method.
+         */
+        n.add("g");
+        /*
+         * Assert equality.
+         */
+        assertEquals(nExpected, n);
+    }
+
+    /**
+     * Tests remove.
+     */
+    @Test
+    public void testRemove() {
+        /*
+         * Create instances.
+         */
+        Set<String> s = this.createFromArgsTest("a");
+        Set<String> sExpected = this.createFromArgsRef();
+        /*
+         * Call method.
+         */
+        String removed = s.remove("a");
+        /*
+         * Assert equality.
+         */
+        assertEquals("a", removed);
+        assertEquals(sExpected.toString(), s.toString());
+    }
+
+    /**
+     * Tests remove when the element to remove is the root.
+     */
+    @Test
+    public void testRemoveRoot() {
+        /*
+         * Create instances.
+         */
+        Set<String> n = this.createFromArgsTest("b", "a", "c");
+        Set<String> nExpected = this.createFromArgsRef("a", "c");
+        /*
+         * Call method.
+         */
+        n.remove("b");
+        /*
+         * Assert equality.
+         */
+        assertEquals(nExpected, n);
+    }
+
+    /**
+     * Tests remove when the element is in the left subtree and a leftmost node.
+     */
+    @Test
+    public void testRemoveLeftSubtreeLeftmost() {
+        /*
+         * Create instances.
+         */
+        Set<String> n = this.createFromArgsTest("d", "b", "f", "a", "c", "e", "g");
+        Set<String> nExpected = this.createFromArgsRef("d", "b", "f", "c", "e", "g");
+        /*
+         * Call method.
+         */
+        n.remove("a");
+        /*
+         * Assert equality.
+         */
+        assertEquals(nExpected, n);
+    }
+
+    /**
+     * Tests remove when the element is in the left subtree and a rightmost
+     * node.
+     */
+    @Test
+    public void testRemoveLeftSubtreeRightmost() {
+        /*
+         * Create instances.
+         */
+        Set<String> n = this.createFromArgsTest("d", "b", "f", "a", "c", "e", "g");
+        Set<String> nExpected = this.createFromArgsRef("d", "b", "f", "a", "e", "g");
+        /*
+         * Call method.
+         */
+        n.remove("c");
+        /*
+         * Assert equality.
+         */
+        assertEquals(nExpected, n);
+    }
+
+    /**
+     * Tests remove when the element is in the right subtree and a leftmost
+     * node.
+     */
+    @Test
+    public void testRemoveRightSubtreeLeftmost() {
+        /*
+         * Create instances.
+         */
+        Set<String> n = this.createFromArgsTest("d", "b", "f", "a", "c", "e", "g");
+        Set<String> nExpected = this.createFromArgsRef("d", "b", "f", "a", "c", "g");
+        /*
+         * Call method.
+         */
+        n.remove("e");
+        /*
+         * Assert equality.
+         */
+        assertEquals(nExpected, n);
+    }
+
+    /**
+     * Tests remove when the element is in the right subtree and a rightmost
+     * node.
+     */
+    @Test
+    public void testRemoveRightSubtreeRightmost() {
+        /*
+         * Create instances.
+         */
+        Set<String> n = this.createFromArgsTest("d", "b", "f", "a", "c", "e", "g");
+        Set<String> nExpected = this.createFromArgsRef("d", "b", "f", "a", "c", "e");
+        /*
+         * Call method.
+         */
+        n.remove("g");
+        /*
+         * Assert equality.
+         */
+        assertEquals(nExpected, n);
+    }
+
+    /**
+     * Tests remove when the element is in the left subtree with no children.
+     */
+    @Test
+    public void testRemoveLeftSubtreeNoChildren() {
+        /*
+         * Create instances.
+         */
+        Set<String> n = this.createFromArgsTest("d", "b", "f", "a", "c", "e", "g");
+        Set<String> nExpected = this.createFromArgsRef("d", "b", "f", "a", "e", "g");
+        /*
+         * Call method.
+         */
+        n.remove("c");
+        /*
+         * Assert equality.
+         */
+        assertEquals(nExpected, n);
+    }
+
+    /**
+     * Tests remove when the element is in the right subtree with no children.
+     */
+    @Test
+    public void testRemoveRightSubtreeNoChildren() {
+        /*
+         * Create instances.
+         */
+        Set<String> n = this.createFromArgsTest("d", "b", "f", "a", "c", "e", "g");
+        Set<String> nExpected = this.createFromArgsRef("d", "b", "f", "a", "c", "e");
+        /*
+         * Call method.
+         */
+        n.remove("g");
+        /*
+         * Assert equality.
+         */
+        assertEquals(nExpected, n);
+    }
+
+    /**
+     * Tests remove any.
+     */
+    @Test
+    public void testRemoveAny() {
+        /*
+         * Create instances.
+         */
+        Set<String> s = this.createFromArgsTest("b", "a", "c");
+        Set<String> sExpected = this.createFromArgsRef("b", "a", "c");
+        /*
+         * Call method.
+         */
+        s.removeAny();
+        /*
+         * Assert equality.
+         */
+        assertTrue(s.size() == sExpected.size() - 1);
+    }
+
+    /**
+     * Tests removeAny when the set has only one element.
+     */
+    @Test
+    public void testRemoveAnySingleElement() {
+        /*
+         * Create instances.
+         */
+        Set<String> n = this.createFromArgsTest("a");
+        /*
+         * Call method.
+         */
+        String removed = n.removeAny();
+        /*
+         * Assert size.
+         */
+        assertEquals(0, n.size());
+        /*
+         * Assert that removed element is no longer in the set.
+         */
+        assertFalse(n.contains(removed));
+    }
+
+    /**
+     * Tests removeAny when the set has many elements.
+     */
+    @Test
+    public void testRemoveAnyManyElements() {
+        /*
+         * Create instances.
+         */
+        Set<String> n = this.createFromArgsTest("a", "b", "c", "d", "e", "f");
+        /*
+         * Call method.
+         */
+        String removed = n.removeAny();
+        final int x = 5;
+        /*
+         * Assert size.
+         */
+        assertEquals(x, n.size());
+        /*
+         * Assert that removed element is no longer in the set.
+         */
+        assertFalse(n.contains(removed));
+    }
+
+    /**
+     * Test contain root.
+     */
+    @Test
+    public void testContainsRoot() {
+        /*
+         * Create instances.
+         */
+        Set<String> s = this.createFromArgsTest("1", "2", "3", "4");
+
+        boolean c = s.contains("1");
+        /*
+         * Assert equality.
+         */
+        assertEquals(true, c);
+    }
+
+    /**
+     * Test contain for another value.
+     */
+    @Test
+    public void testContains1() {
+        /*
+         * Create instances.
+         */
+        Set<String> s = this.createFromArgsTest("1", "2", "3", "4");
+
+        boolean c = s.contains("3");
+        /*
+         * Assert equality.
+         */
+        assertEquals(true, c);
+    }
+
+    /**
+     * Test contain for another value.
+     */
+    @Test
+    public void testContains2() {
+        /*
+         * Create instances.
+         */
+        Set<String> s = this.createFromArgsTest("1", "2", "3", "4");
+
+        boolean c = s.contains("2");
+        /*
+         * Assert equality.
+         */
+        assertEquals(true, c);
+    }
+
+    /**
+     * Tests contains when the set is empty.
+     */
+    @Test
+    public void testContainsEmptySet() {
+        /*
+         * Create instances.
+         */
+        Set<String> n = this.createFromArgsTest();
+        /*
+         * Assert false.
+         */
+        assertFalse(n.contains("a"));
+    }
+
+    /**
+     * Tests contains when the element is in the left subtree.
+     */
+    @Test
+    public void testContainsTrueLeftSubtree() {
+        /*
+         * Create instances.
+         */
+        Set<String> n = this.createFromArgsTest("d", "b", "f", "a", "c");
+        /*
+         * Assert true.
+         */
+        assertTrue(n.contains("b"));
+    }
+
+    /**
+     * Tests contains when the element is in the right subtree.
+     */
+    @Test
+    public void testContainsTrueRightSubtree() {
+        /*
+         * Create instances.
+         */
+        Set<String> n = this.createFromArgsTest("d", "b", "f", "e", "g");
+        /*
+         * Assert true.
+         */
+        assertTrue(n.contains("f"));
+    }
+
+    /**
+     * Tests contains when the element is in root.
+     */
+    @Test
+    public void testContainsTrueRoot() {
+        /*
+         * Create instances.
+         */
+        Set<String> n = this.createFromArgsTest("d", "b", "f", "a", "c", "e", "g");
+        /*
+         * Assert true.
+         */
+        assertTrue(n.contains("d"));
+    }
+
+    /**
+     * Tests contains when false with single element in tree.
+     */
+    @Test
+    public void testContainsFalseSingleElement() {
+        /*
+         * Create instances.
+         */
+        Set<String> n = this.createFromArgsTest("a");
+        /*
+         * Assert false.
+         */
+        assertFalse(n.contains("b"));
+    }
+
+    /**
+     * Tests contains when false with multiple elements in tree.
+     */
+    @Test
+    public void testContainsFalseMultipleElements() {
+        /*
+         * Create instances.
+         */
+        Set<String> n = this.createFromArgsTest("a", "b", "c", "d", "e");
+        /*
+         * Assert false.
+         */
+        assertFalse(n.contains("f"));
+    }
+
+    /**
+     * Tests size when the set is empty.
+     */
+    @Test
+    public void testSizeEmpty() {
+        /*
+         * Create instances.
+         */
+        Set<String> n = this.createFromArgsTest();
+
+        /**
+         * Call method.
+         */
+        int size = n.size();
+        /*
+         * Assert size.
+         */
+        assertEquals(0, size);
+    }
+
+    /**
+     * Tests size when the set has one element.
+     */
+    @Test
+    public void testSizeOneElement() {
+        /*
+         * Create instances.
+         */
+        Set<String> n = this.createFromArgsTest("a");
+        /**
+         * Call method.
+         */
+        int size = n.size();
+        /*
+         * Assert size.
+         */
+        assertEquals(1, size);
+    }
+
+    /**
+     * Tests size when the set has multiple elements.
+     */
+    @Test
+    public void testSizeMultipleElements() {
+        /*
+         * Create instances.
+         */
+        Set<String> n = this.createFromArgsTest("a", "b", "c", "d");
+        /**
+         * Call method.
+         */
+        final int nSize = 4;
+        int size = n.size();
+        /*
+         * Assert size.
+         */
+        assertEquals(nSize, size);
+    }
+
+}
