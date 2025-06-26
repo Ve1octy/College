@@ -1,0 +1,280 @@
+import java.util.Comparator;
+
+import components.map.Map;
+import components.map.Map1L;
+import components.queue.Queue;
+import components.queue.Queue1L;
+import components.set.Set;
+import components.set.Set1L;
+import components.simplereader.SimpleReader;
+import components.simplereader.SimpleReader1L;
+import components.simplewriter.SimpleWriter;
+import components.simplewriter.SimpleWriter1L;
+
+/**
+ * Put a short phrase describing the program here.
+ *
+ * @author Aidan Sivak
+ *
+ */
+public final class Glossary {
+
+    /**
+     * Default constructor--private to prevent instantiation.
+     */
+    private Glossary() {
+
+    }
+
+    private static class Sort implements Comparator<String> {
+        @Override
+        public int compare(String o1, String o2) {
+            return o1.compareTo(o2);
+        }
+    }
+
+    /**
+     * Outputs the opening tags
+     *
+     */
+    private static void indexHeader(SimpleWriter out) {
+
+        out.println("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>");
+        out.println(
+                "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">");
+        out.println("<html xmlns=\"http://www.w3.org/1999/xhtml\">");
+        out.println("<head>");
+        out.println("<title>Glossary</title>");
+        out.println("</head>");
+        out.println("<body>");
+        out.println("<h2>Index</h2>");
+        out.println("<ul>");
+
+    }
+
+    /**
+     * Outputs the closing tags
+     *
+     */
+    private static void indexFooter(SimpleWriter out) {
+
+        out.println("</ul>");
+        out.println("</body>");
+        out.println("</html>");
+    }
+
+    /**
+     * Reads file and fills Map with words and definitions, and queue with
+     * words.
+     *
+     *
+     */
+
+    private static Queue<String> getDef(Map<String, String> wordMap,
+            SimpleReader in) {
+
+        Queue<String> wordQueue = new Queue1L<>();
+
+        while (!in.atEOS()) {
+
+            String word = in.nextLine();
+            String def = in.nextLine();
+            String s = " ";
+
+            while (!in.atEOS() && s.length() > 0) {
+
+                s = in.nextLine();
+
+                if (s.length() > 0) {
+                    def += s;
+                }
+            }
+
+            wordMap.add(word, def);
+            wordQueue.enqueue(word);
+        }
+        return wordQueue;
+    }
+
+    /**
+     * Prints out html files of each word in queue with definition
+     *
+     */
+    private static void definitionFiles(Map<String, String> wordMap,
+            Queue<String> words, String out) {
+
+        Queue<String> temp = new Queue1L<>();
+
+        //checks every word and definition in the queue to create a link
+        while (words.length() > 0) {
+            //takes the first term in the queue and removes it, saving it into
+            //word
+            String word = words.dequeue();
+            //gets the definition of the word from the map by saving it into def
+            String def = wordMap.value(word);
+            //saves the word in the temperary queue to be updated
+            temp.enqueue(word);
+
+            SimpleWriter html = new SimpleWriter1L("lib/" + word + ".html");
+
+            html.println("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>");
+            html.println(
+                    "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">");
+            html.println("<html xmlns=\"http://www.w3.org/1999/xhtml\">");
+            html.println("<head>");
+            html.println("<title>" + word + "</title>");
+            html.println("</head>");
+            html.println("<body>");
+            html.println("<h2><b><i><font color=\"red\">" + word
+                    + "</font></i></b></h2>");
+            html.println("<h4>");
+            html.println(def);
+            html.println("</h4>");
+            html.println("<p>Return to <a href=\"index.html\">index</a>.</p>");
+            html.println("</body>");
+            html.println("</html>");
+
+            html.close();
+        }
+        //updates the words in the temp variable and transfers them to queue
+        words.transferFrom(temp);
+    }
+
+    /**
+     * Takes a string and looks for the first word starting at the position The
+     * word is ended by a special character or 'case', then that word and
+     * character is returned
+     *
+     *
+     */
+    private static String nextWord(String s, int place,
+            Set<Character> specialCases) {
+
+        String next = "";
+        char a = s.charAt(place);
+
+        if (specialCases.contains(a)) {
+
+            while (specialCases.contains(a) && place < s.length()) {
+
+                a = s.charAt(place);
+                next += a;
+                place++;
+            }
+        }
+
+        else {
+
+            while (!specialCases.contains(a) && place < s.length()) {
+
+                a = s.charAt(place);
+                next += a;
+                place++;
+            }
+        }
+        return next;
+    }
+
+    /**
+     * Checks for any words in the definition are in the queue and if so changes
+     * the string to include the a href
+     *
+     */
+
+    private static void addDefinitionLink(Map<String, String> wM,
+            Queue<String> words, String folder) {
+
+        Queue<String> wordsCopy = new Queue1L<>();
+        Set<Character> specialCases = new Set1L<>();
+
+        specialCases.add(' ');
+        specialCases.add(',');
+        specialCases.add('.');
+
+        int place = 0;
+
+        while (words.length() > 0) {
+
+            String word = words.dequeue();
+            wordsCopy.enqueue(word);
+            String def = wM.value(word);
+            String updatedDef = " ";
+
+            while (place < def.length()) {
+
+                String next = nextWord(def, place, specialCases);
+
+                if (wM.hasKey(next)) {
+                    updatedDef = updatedDef + "<a href=\"" + next + ".html\">"
+                            + next + "</a>";
+                } else {
+                    updatedDef = updatedDef + next;
+                }
+                place = place + next.length();
+            }
+
+            wM.replaceValue(word, updatedDef.substring(1));
+            place = 0;
+        }
+
+        words.transferFrom(wordsCopy);
+    }
+
+    /**
+     * Main method.
+     *
+     * @param args
+     *            Command-line arguments: not used
+     */
+    public static void main(String[] args) {
+
+        SimpleReader in = new SimpleReader1L();
+        SimpleWriter out = new SimpleWriter1L();
+
+        out.print("Enter the name of an input file \n");
+        String fileName = in.nextLine();
+
+        out.print("Enter the name of an output folder \n");
+        String folder = in.nextLine();
+
+        //Reads file
+        SimpleReader read = new SimpleReader1L(fileName);
+        //Writes file in folder
+        SimpleWriter write = new SimpleWriter1L(folder + "/index.html");
+
+        //Map to hold words and definitions
+        Map<String, String> mapOfWords = new Map1L<>();
+        //List to hold words
+        Queue<String> words = new Queue1L<>();
+
+        words.append(getDef(mapOfWords, read));
+
+        //Comparator for alphabetical sorting
+        Comparator<String> alphabetical = new Sort();
+        words.sort(alphabetical);
+
+        //Words in queue in the definitions get links
+        addDefinitionLink(mapOfWords, words, folder);
+
+        //Makes the files of each word with definition
+        definitionFiles(mapOfWords, words, folder);
+
+        //Opening tags of html file
+        indexHeader(write);
+
+        //Prints each word with link
+        while (words.length() > 0) {
+            String word = words.dequeue();
+            write.println(
+                    "<li><a href=\"" + word + ".html\">" + word + "</a></li>");
+        }
+
+        //Closing tags of html file
+        indexFooter(write);
+
+        in.close();
+        out.close();
+        write.close();
+
+    }
+}
