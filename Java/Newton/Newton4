@@ -1,0 +1,95 @@
+import components.simplereader.SimpleReader;
+import components.simplereader.SimpleReader1L;
+import components.simplewriter.SimpleWriter;
+import components.simplewriter.SimpleWriter1L;
+
+/**
+ * Asks user if they would like to calculate a square root. If so user enters a
+ * positive double and program will use Newton iteration to calculate root
+ * number
+ *
+ * @author Aidan Sivak
+ *
+ */
+public final class Newton4 {
+
+    /**
+     * Private constructor so this utility class cannot be instantiated.
+     */
+    private Newton4() {
+    }
+
+    /**
+     * Computes estimate of square root of x to within relative error 0.01%.
+     *
+     * @param x
+     *            positive number to compute square root of
+     * 
+     * @param e
+     *            percentage error
+     * @return estimate of square root
+     */
+    private static double sqrt(double x, double e) {
+        double r;
+
+        // Add 0.1 to x so that in the while loop it avoids dividing by 0
+        r = x + 0.1;
+
+        while (Math.abs((Math.pow(r, 2.0) - x)) / x >= Math.pow(e, 2.0)) {
+
+            r = ((r + x / r) / 2);
+        }
+
+        return r;
+
+    }
+
+    /**
+     * Main method.
+     *
+     * @param args
+     *            the command line arguments
+     * @return
+     */
+    public static void main(String[] args) {
+        SimpleReader in = new SimpleReader1L();
+        SimpleWriter out = new SimpleWriter1L();
+        /*
+         * Put your main program code here; it may call myMethod as shown
+         */
+        String answer = "";
+
+        out.println("Would you wish to calculate another square root? Y or N");
+        answer = in.nextLine();
+
+        if (answer.equals("Y")) {
+            out.println("Please enter a positive double");
+            double x = in.nextDouble();
+            out.println("Please enter a error percentage");
+            double e = in.nextDouble();
+
+            while (x > 0) {
+
+                double result = sqrt(x, e);
+                out.print(result + "\n");
+
+                out.println("Please enter a positive double");
+                x = in.nextDouble();
+                out.println("Please enter a error percentage");
+                e = in.nextDouble();
+
+                if (x > 0) {
+                    x = x;
+                }
+
+                else {
+                    /*
+                     * Close input and output streams
+                     */
+                    in.close();
+                    out.close();
+                }
+            }
+        }
+    }
+}
