@@ -1,0 +1,226 @@
+import components.simplereader.SimpleReader;
+import components.simplereader.SimpleReader1L;
+import components.simplewriter.SimpleWriter;
+import components.simplewriter.SimpleWriter1L;
+import components.utilities.FormatChecker;
+
+/**
+ * Put a short phrase describing the program here.
+ *
+ * @author Put your name here
+ *
+ */
+public final class ABCDGuesser2 {
+
+    /**
+     * Private constructor so this utility class cannot be instantiated.
+     */
+    private ABCDGuesser2() {
+    }
+
+    /**
+     * Repeatedly asks the user for a positive real number until the user enters
+     * one. Returns the positive real number.
+     *
+     * @param in
+     *            the input stream
+     * @param out
+     *            the output stream
+     * @return a positive real number entered by the user
+     */
+    private static double getPositiveDouble(SimpleReader in, SimpleWriter out) {
+
+        String mu;
+        Double muDouble = null;
+        mu = in.nextLine();
+        Boolean muCheck = FormatChecker.canParseDouble(mu);
+
+        if (muCheck = true) {
+            muDouble = Double.parseDouble(mu);
+        }
+
+        return muDouble;
+    }
+
+    /**
+     * Repeatedly asks the user for a positive real number not equal to 1.0
+     * until the user enters one. Returns the positive real number.
+     *
+     * @param in
+     *            the input stream
+     * @param out
+     *            the output stream
+     * @return a positive real number not equal to 1.0 entered by the user
+     */
+
+    private static double getPositiveDoubleNotOne(SimpleReader in,
+            SimpleWriter out) {
+
+        String letter;
+        Double letterValue = null;
+        letter = in.nextLine();
+        boolean letterCheck = FormatChecker.canParseDouble(letter);
+
+        if (letterCheck = true) {
+            letterValue = Double.parseDouble(letter);
+        }
+
+        return letterValue;
+
+    }
+
+    private static void muCalculations(double mu, double w, double x, double y,
+            double z, SimpleWriter out) {
+
+        //Array of Exponents
+        double[] exponents = { -5, -4, -3, -2, -1, -1 / 2, -1 / 3, -1 / 4, 0,
+                1 / 4, 1 / 3, 1 / 2, 1, 2, 3, 4, 5 };
+
+        //Initiate value holder of nearest estimate to Mu value
+        double nearestEstimate = 0;
+
+        //Initiate value holders of exponents
+        double aValue = 0;
+        double bValue = 0;
+        double cValue = 0;
+        double dValue = 0;
+
+        //For loops
+        for (int n = 0; n < 16; n++) {
+
+            for (int o = 0; o < 16; o++) {
+
+                for (int p = 0; p < 16; p++) {
+
+                    for (int q = 0; q < 16; q++) {
+
+                        if (Math.abs(mu - (Math.pow(w, exponents[n]))
+                                * (Math.pow(x, exponents[o]))
+                                * (Math.pow(y, exponents[p]))
+                                * (Math.pow(z, exponents[q]))) < Math
+                                        .abs(mu - nearestEstimate)) {
+                            nearestEstimate = (Math.pow(w, exponents[n]))
+                                    * (Math.pow(x, exponents[o]))
+                                    * (Math.pow(y, exponents[p]))
+                                    * (Math.pow(z, exponents[q]));
+
+                            //Exponents Values
+                            aValue = (exponents[n]);
+                            bValue = (exponents[o]);
+                            cValue = (exponents[p]);
+                            dValue = (exponents[q]);
+
+                        }
+                    }
+                }
+            }
+        }
+        //Relative error calculation
+        double error = (1 - Math.abs(mu / nearestEstimate)) * 100;
+
+        //Output of best approximation, exponents, and corresponding relative error
+        out.print("The best approximation is " + nearestEstimate + "\n");
+        out.print("The value of the A exponent is " + aValue + "\n");
+        out.print("The value of the B exponent is " + bValue + "\n");
+        out.print("The value of the C exponent is " + cValue + "\n");
+        out.print("The value of the D exponent is " + dValue + "\n");
+        out.print("The corresponding error is " + error + "%");
+
+    }
+
+    /**
+     * Main method.
+     *
+     * @param args
+     *            the command line arguments
+     */
+    public static void main(String[] args) {
+        SimpleReader in = new SimpleReader1L();
+        SimpleWriter out = new SimpleWriter1L();
+
+        //Initiates Mu value and asks for positive double until one is input
+        double muValue;
+
+        out.println("Please enter a positive real number");
+        muValue = getPositiveDouble(in, out);
+
+        if (muValue < 0.0) {
+            while (muValue < 0.0) {
+                out.println(
+                        "Please make sure to enter a 'positive' real number");
+                muValue = getPositiveDouble(in, out);
+            }
+        } else {
+            muValue = muValue + 0.0;
+        }
+
+        //Initiates W value and asks for positive double that isn't one, until one is input
+        Double w;
+        out.println("Please enter a positive real number that isn't 1 for w");
+        w = getPositiveDoubleNotOne(in, out);
+
+        if (w < 0.0) {
+            while (w < 0.0) {
+                out.println(
+                        "Please enter a positive real number that isn't 1 for w");
+                w = getPositiveDoubleNotOne(in, out);
+            }
+        } else {
+            w = w + 0.0;
+        }
+
+        //Initiates X value and asks for positive double that isn't one, until one is input
+        Double x;
+        out.println("Please enter a positive real number that isn't 1 for x");
+        x = getPositiveDoubleNotOne(in, out);
+
+        if (x < 0.0) {
+            while (x < 0.0) {
+                out.println(
+                        "Please enter a positive real number that isn't 1 for x");
+                x = getPositiveDoubleNotOne(in, out);
+            }
+        } else {
+            x = x + 0.0;
+        }
+
+        //Initiates Y value and asks for positive double that isn't one, until one is input
+        Double y;
+        out.println("Please enter a positive real number that isn't 1 for y");
+        y = getPositiveDoubleNotOne(in, out);
+
+        if (y < 0.0) {
+            while (y < 0.0) {
+                out.println(
+                        "Please enter a positive real number that isn't 1 for y");
+                y = getPositiveDoubleNotOne(in, out);
+            }
+        } else {
+            y = y + 0.0;
+        }
+
+        //Initiates Z value and asks for positive double that isn't one, until one is input
+        Double z;
+        out.println("Please enter a positive real number that isn't 1 for z");
+        z = getPositiveDoubleNotOne(in, out);
+
+        if (z < 0.0) {
+            while (z < 0.0) {
+                out.println(
+                        "Please enter a positive real number that isn't 1 for z");
+                z = getPositiveDoubleNotOne(in, out);
+            }
+        } else {
+            z = z + 0.0;
+        }
+
+        muCalculations(muValue, w, x, y, z, out);
+
+        /*
+         *
+         * /* Close input and output streams
+         */
+        in.close();
+        out.close();
+    }
+}
